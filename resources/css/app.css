@@ -1,11 +1,54 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-white text-slate-900 antialiased; }
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+@layer components {
+  .container-xl { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium transition;
+  }
+  .btn-primary { @apply bg-slate-900 text-white hover:bg-slate-800; }
+  .btn-ghost { @apply border border-white/20 text-white hover:bg-white/10; }
+  .btn-soft { @apply border border-slate-300 text-slate-900 hover:bg-slate-50; }
+
+  .card {
+    @apply rounded-3xl border border-slate-200 bg-white shadow-sm;
+  }
+  .card-hover {
+    @apply transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/5;
+  }
+
+  .pill { @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/80; }
+
+  .luxury-grid {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.08) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  .glow {
+    background: radial-gradient(closest-side, rgba(255,255,255,0.18), transparent 70%);
+    filter: blur(18px);
+  }
+}
+
+.dark-section {
+  background-color: rgb(2 6 23); /* slate-950 */
+  color: white;
+}
+
+.dark-card {
+  background-color: rgb(15 23 42); /* slate-900 */
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.dark-card:hover {
+  border-color: rgba(255,255,255,.18);
+  transform: translateY(-2px);
 }
