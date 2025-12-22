@@ -2,8 +2,8 @@
     <div class="container-xl">
         <div class="h-16 flex items-center justify-between">
             <a href="{{ url('/') }}" class="flex items-center gap-3">
-                <div class="h-9 w-9 rounded-2xl bg-white text-slate-950 grid place-items-center font-bold tracking-tight">
-                    A
+                <div class="h-9 w-9 rounded-2xl overflow-hidden grid place-items-center">
+                    <img src="{{ asset('images/gallery/aurum-logo-only.svg') }}" alt="Aurum Hotel logo" class="h-full w-full object-cover" />
                 </div>
                 <div class="leading-tight">
                     <div class="text-white font-semibold tracking-tight">Aurum Hotel</div>

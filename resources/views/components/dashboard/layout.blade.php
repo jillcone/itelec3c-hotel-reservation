@@ -5,8 +5,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12">
                     <aside class="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-slate-200 bg-slate-50/60 p-6">
                         <div class="flex items-center gap-3">
-                            <div class="h-9 w-9 rounded-2xl bg-slate-900 text-white grid place-items-center font-bold tracking-tight">
-                                A
+                            <div class="h-9 w-9 rounded-2xl overflow-hidden grid place-items-center">
+                                <img src="{{ asset('images/gallery/aurum-logo-only.svg') }}" alt="Aurum logo" class="h-full w-full object-cover" />
                             </div>
                             <div class="leading-tight">
                                 <div class="font-semibold tracking-tight">Aurum Hotel</div>
@@ -64,7 +64,14 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <a href="{{ url('/') }}" class="btn btn-soft">Back to site</a>
-                                <div class="h-10 w-10 rounded-full bg-slate-200"></div>
+                                @php
+                                    $name = auth()->user()->full_name ?? auth()->user()->username;
+                                    $parts = preg_split('/\s+/', trim($name));
+                                    $initials = strtoupper(substr($parts[0] ?? '', 0, 1) . (isset($parts[1]) ? substr($parts[1], 0, 1) : ''));
+                                @endphp
+                                <div class="h-10 w-10 rounded-full bg-slate-200 text-slate-900 grid place-items-center font-semibold">
+                                    {{ $initials }}
+                                </div>
                                 <div class="leading-tight">
                                     <div class="text-sm font-semibold">{{ auth()->user()->full_name }}</div>
                                     <div class="text-xs text-slate-500">{{ auth()->user()->role }}</div>
@@ -86,6 +93,33 @@
                                             text: @json(session('success')),
                                             timer: 1600,
                                             showConfirmButton: false,
+                                        });
+                                    };
+
+                                    if (window.Swal) {
+                                        show();
+                                        return;
+                                    }
+
+                                    // Fallback: load SweetAlert2 from CDN (useful if Vite build/dev isn't running)
+                                    const script = document.createElement('script');
+                                    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+                                    script.onload = () => {
+                                        if (window.Swal) show();
+                                    };
+                                    document.head.appendChild(script);
+                                });
+                            </script>
+                        @endif
+
+                        @if (session('error'))
+                            <script>
+                                window.addEventListener('DOMContentLoaded', () => {
+                                    const show = () => {
+                                        window.Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: @json(session('error')),
                                         });
                                     };
 

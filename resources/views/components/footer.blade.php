@@ -5,8 +5,8 @@
             {{-- Brand --}}
             <div>
                 <div class="flex items-center gap-3">
-                    <div class="h-9 w-9 rounded-2xl bg-white text-slate-950 grid place-items-center font-bold">
-                        A
+                    <div class="h-9 w-9 rounded-2xl overflow-hidden grid place-items-center">
+                        <img src="{{ asset('images/gallery/aurum-logo-only.svg') }}" alt="Aurum logo" class="h-full w-full object-cover" />
                     </div>
                     <span class="text-lg font-semibold">Aurum Hotel</span>
                 </div>

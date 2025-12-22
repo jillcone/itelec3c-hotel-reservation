@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Reservation extends Model
 {
@@ -38,5 +39,12 @@ class Reservation extends Model
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class, 'room_id', 'room_id');
+    }
+
+    public function amenities(): BelongsToMany
+    {
+        return $this->belongsToMany(Amenity::class, 'amenity_reservation', 'reservation_id', 'amenity_id')
+            ->withPivot(['price_per_use'])
+            ->withTimestamps();
     }
 }

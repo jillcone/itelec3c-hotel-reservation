@@ -215,7 +215,7 @@ class DashboardController extends Controller
     public function reservations()
     {
         $reservations = Reservation::query()
-            ->with(['user', 'room'])
+            ->with(['user', 'room', 'amenities'])
             ->orderByDesc('created_at')
             ->get();
 
@@ -289,7 +289,7 @@ class DashboardController extends Controller
     public function approvals()
     {
         $pendingReservations = Reservation::query()
-            ->with(['user', 'room'])
+            ->with(['user', 'room', 'amenities'])
             ->where(function ($q) {
                 $q->where('reservation_status', 'pending')
                     ->orWhere('reservation_status', 'Pending');
@@ -302,9 +302,15 @@ class DashboardController extends Controller
 
     public function approvalsApprove(int $reservationId)
     {
-        Reservation::query()
+        $reservation = Reservation::query()
             ->where('reservation_id', $reservationId)
-            ->update(['reservation_status' => 'approved']);
+            ->firstOrFail();
+
+        $reservation->update(['reservation_status' => 'approved']);
+
+        Room::query()
+            ->where('room_id', $reservation->room_id)
+            ->update(['availability_status' => 'unavailable']);
 
         return redirect()->route('dashboard.approvals')->with('success', 'Reservation approved.');
     }
@@ -323,7 +329,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         $reservations = Reservation::query()
-            ->with('room')
+            ->with(['room', 'amenities'])
             ->where('user_id', $user->user_id)
             ->orderByDesc('created_at')
             ->get();
@@ -331,13 +337,111 @@ class DashboardController extends Controller
         return view('dashboard.my-reservations', compact('reservations'));
     }
 
-    public function reserve()
+    public function reserve(Request $request)
     {
+        return $this->reserveWithFilters($request);
+    }
+
+    private function reserveWithFilters(Request $request)
+    {
+        $validated = $request->validate([
+            'check_in_date' => ['nullable', 'date'],
+            'check_out_date' => ['nullable', 'date', 'after:check_in_date'],
+            'guests' => ['nullable', 'integer', 'min:1'],
+            'room_type' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $checkIn = $validated['check_in_date'] ?? null;
+        $checkOut = $validated['check_out_date'] ?? null;
+        $guests = $validated['guests'] ?? null;
+        $roomType = $validated['room_type'] ?? null;
+
         $availableRooms = Room::query()
             ->where('availability_status', 'available')
+            ->when($guests, fn ($q) => $q->where('capacity', '>=', $guests))
+            ->when($roomType && strtolower($roomType) !== 'any', fn ($q) => $q->where('room_type', $roomType))
+            ->when($checkIn && $checkOut, function ($q) use ($checkIn, $checkOut) {
+                $q->whereDoesntHave('reservations', function ($rq) use ($checkIn, $checkOut) {
+                    $rq->whereNotIn('reservation_status', ['rejected', 'Rejected', 'cancelled', 'Cancelled'])
+                        ->where('check_in_date', '<', $checkOut)
+                        ->where('check_out_date', '>', $checkIn);
+                });
+            })
             ->orderBy('room_number')
             ->get();
 
-        return view('dashboard.reserve', compact('availableRooms'));
+        $amenities = Amenity::query()
+            ->orderBy('amenity_name')
+            ->get();
+
+        return view('dashboard.reserve', [
+            'availableRooms' => $availableRooms,
+            'amenities' => $amenities,
+            'checkIn' => $checkIn,
+            'checkOut' => $checkOut,
+            'guests' => $guests,
+            'roomType' => $roomType,
+        ]);
+    }
+
+    public function reserveStore(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'room_id' => ['required', 'integer', 'exists:rooms,room_id'],
+            'check_in_date' => ['required', 'date'],
+            'check_out_date' => ['required', 'date', 'after:check_in_date'],
+            'amenity_ids' => ['nullable', 'array'],
+            'amenity_ids.*' => ['integer', 'exists:amenities,amenity_id'],
+        ]);
+
+        $room = Room::query()->where('room_id', $validated['room_id'])->firstOrFail();
+        if ($room->availability_status !== 'available') {
+            return redirect()->route('dashboard.reserve', $request->only(['check_in_date', 'check_out_date', 'guests', 'room_type']))
+                ->with('error', 'Selected room is not available.');
+        }
+
+        $hasConflict = Reservation::query()
+            ->where('room_id', $room->room_id)
+            ->whereNotIn('reservation_status', ['rejected', 'Rejected', 'cancelled', 'Cancelled'])
+            ->where('check_in_date', '<', $validated['check_out_date'])
+            ->where('check_out_date', '>', $validated['check_in_date'])
+            ->exists();
+
+        if ($hasConflict) {
+            return redirect()->route('dashboard.reserve', $request->only(['check_in_date', 'check_out_date', 'guests', 'room_type']))
+                ->with('error', 'That room is already reserved for the selected dates.');
+        }
+
+        $nights = max(1, now()->parse($validated['check_in_date'])->diffInDays(now()->parse($validated['check_out_date'])));
+        $baseTotal = $nights * (float) $room->price_per_night;
+
+        $amenityIds = $validated['amenity_ids'] ?? [];
+        $amenities = Amenity::query()
+            ->whereIn('amenity_id', $amenityIds)
+            ->get(['amenity_id', 'price_per_use']);
+
+        $amenitiesTotal = (float) $amenities->sum(fn ($a) => (float) $a->price_per_use);
+        $totalPrice = $baseTotal + $amenitiesTotal;
+
+        $reservation = Reservation::create([
+            'user_id' => $user->user_id,
+            'room_id' => $room->room_id,
+            'check_in_date' => $validated['check_in_date'],
+            'check_out_date' => $validated['check_out_date'],
+            'total_price' => $totalPrice,
+            'reservation_status' => 'pending',
+        ]);
+
+        if ($amenities->isNotEmpty()) {
+            foreach ($amenities as $amenity) {
+                $reservation->amenities()->attach($amenity->amenity_id, [
+                    'price_per_use' => $amenity->price_per_use,
+                ]);
+            }
+        }
+
+        return redirect()->route('dashboard.my-reservations')->with('success', 'Reservation created and is pending approval.');
     }
 }

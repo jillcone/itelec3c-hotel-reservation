@@ -93,7 +93,14 @@
                     <input id="roomModalMethod" type="hidden" name="_method" value="PATCH" disabled>
 
                     <input id="roomNumber" name="room_number" placeholder="Room #" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required />
-                    <input id="roomType" name="room_type" placeholder="Room type" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required />
+                    <select id="roomType" name="room_type" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required>
+                        <option value="" disabled selected>Room type</option>
+                        <option value="Standard Room">Standard Room</option>
+                        <option value="Double Room">Double Room</option>
+                        <option value="Deluxe Room">Deluxe Room</option>
+                        <option value="Family Room">Family Room</option>
+                        <option value="Aurum Suite">Aurum Suite</option>
+                    </select>
                     <input id="roomCapacity" name="capacity" type="number" min="1" placeholder="Capacity" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required />
                     <input id="roomPrice" name="price_per_night" type="number" step="0.01" min="0" placeholder="Price per night" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required />
                     <select id="roomStatus" name="availability_status" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" required>

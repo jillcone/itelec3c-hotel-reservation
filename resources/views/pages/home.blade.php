@@ -70,12 +70,14 @@
                                 </div>
                             </div>
 
-                            <form class="mt-6 grid gap-4">
+                            <form id="home-booking-form" method="GET" action="{{ route('dashboard.reserve') }}" class="mt-6 grid gap-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
             <label class="text-xs text-slate-600">Check-in</label>
             <input
                 type="date"
+                name="check_in_date"
+                required
                 class="mt-1 w-full rounded-2xl border-slate-300
                        text-slate-900
                        focus:border-slate-900 focus:ring-slate-900"
@@ -85,6 +87,8 @@
             <label class="text-xs text-slate-600">Check-out</label>
             <input
                 type="date"
+                name="check_out_date"
+                required
                 class="mt-1 w-full rounded-2xl border-slate-300
                        text-slate-900
                        focus:border-slate-900 focus:ring-slate-900"
@@ -92,10 +96,11 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
             <label class="text-xs text-slate-600">Guests</label>
             <select
+                name="guests"
                 class="mt-1 w-full rounded-2xl border-slate-300
                        text-slate-900
                        focus:border-slate-900 focus:ring-slate-900">
@@ -109,32 +114,21 @@
         <div>
             <label class="text-xs text-slate-600">Room</label>
             <select
+                name="room_type"
                 class="mt-1 w-full rounded-2xl border-slate-300
                        text-slate-900
                        focus:border-slate-900 focus:ring-slate-900">
-                <option class="text-slate-900">Any</option>
-                <option class="text-slate-900">Standard</option>
-                <option class="text-slate-900">Double</option>
-                <option class="text-slate-900">Family</option>
-                <option class="text-slate-900">Deluxe</option>
-                <option class="text-slate-900">Suite</option>
+                <option class="text-slate-900" value="Any">Any</option>
+                <option class="text-slate-900" value="Standard Room">Standard Room</option>
+                <option class="text-slate-900" value="Double Room">Double Room</option>
+                <option class="text-slate-900" value="Family Room">Family Room</option>
+                <option class="text-slate-900" value="Deluxe Room">Deluxe Room</option>
+                <option class="text-slate-900" value="Aurum Suite">Aurum Suite</option>
             </select>
-        </div>
-
-        <div>
-            <label class="text-xs text-slate-600">Promo</label>
-            <input
-                type="text"
-                placeholder="Optional"
-                class="mt-1 w-full rounded-2xl border-slate-300
-                       text-slate-900
-                       placeholder:text-slate-400
-                       focus:border-slate-900 focus:ring-slate-900"
-            />
         </div>
     </div>
 
-    <button type="button" class="btn btn-primary w-full rounded-2xl py-3">
+    <button type="submit" class="btn btn-primary w-full rounded-2xl py-3">
         Check Availability
     </button>
 
@@ -143,6 +137,43 @@
         <span>Free cancellation (selected rates)</span>
     </div>
 </form>
+
+                            @guest
+                                <script>
+                                    window.addEventListener('DOMContentLoaded', () => {
+                                        const form = document.getElementById('home-booking-form');
+                                        if (!form) return;
+
+                                        form.addEventListener('submit', async (e) => {
+                                            e.preventDefault();
+
+                                            const ensure = window.ensureSwal
+                                                ? window.ensureSwal
+                                                : () => Promise.resolve(window.Swal);
+
+                                            const Swal = await ensure();
+                                            if (!Swal) {
+                                                window.location.href = @json(route('login'));
+                                                return;
+                                            }
+
+                                            const result = await Swal.fire({
+                                                icon: 'info',
+                                                title: 'Sign in required',
+                                                text: 'Please sign in to book a reservation.',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Sign in',
+                                                cancelButtonText: 'Cancel',
+                                                reverseButtons: true,
+                                            });
+
+                                            if (result.isConfirmed) {
+                                                window.location.href = @json(route('login'));
+                                            }
+                                        });
+                                    });
+                                </script>
+                            @endguest
 
                         </div>
                     </div>
@@ -153,8 +184,8 @@
                             <div class="mt-1 text-white/60">Complimentary welcome drink</div>
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-white/80">
-                            <div class="font-medium text-white">Members Rate</div>
-                            <div class="mt-1 text-white/60">Save up to 10%</div>
+                            <div class="font-medium text-white">Best Rate Guarantee</div>
+                            <div class="mt-1 text-white/60">Guaranteed lowest price</div>
                         </div>
                     </div>
                 </div>
@@ -259,35 +290,45 @@
                     'name'=>'Standard Room',
                     'tag'=>'Best value',
                     'desc'=>'Minimalist comfort for solo stays and short trips.',
-                    'price'=>'₱2,499/night'
+                    'price'=>'₱2,499/night',
+                    'image'=>'standard-room.png',
                 ],
                 [
                     'name'=>'Double Room',
                     'tag'=>'Comfort',
                     'desc'=>'Ideal for couples, featuring a spacious double bed and cozy interiors.',
-                    'price'=>'₱2,999/night'
+                    'price'=>'₱2,999/night',
+                    'image'=>'double-room.png',
                 ],
                 [
                     'name'=>'Deluxe Room',
                     'tag'=>'Most booked',
                     'desc'=>'More space, better views, and a premium feel.',
-                    'price'=>'₱3,699/night'
+                    'price'=>'₱3,699/night',
+                    'image'=>'deluxe-room.png',
                 ],
                 [
                     'name'=>'Family Room',
                     'tag'=>'Family favorite',
                     'desc'=>'Designed for families, offering extra space and multiple sleeping options.',
-                    'price'=>'₱4,999/night'
+                    'price'=>'₱4,999/night',
+                    'image'=>'family-room.png',
                 ],
                 [
                     'name'=>'Aurum Suite',
                     'tag'=>'Signature',
                     'desc'=>'Lounge area + spa-style bath for long stays.',
-                    'price'=>'₱6,999/night'
+                    'price'=>'₱6,999/night',
+                    'image'=>'aurum-suite.png',
                 ],
             ] as $room)
                 <div class="card card-hover overflow-hidden">
-                    <div class="h-52 bg-slate-100 border-b border-slate-200 relative">
+                    <div class="h-52 border-b border-slate-200 relative overflow-hidden bg-slate-100">
+                        <img
+                            src="{{ asset('images/gallery/' . $room['image']) }}"
+                            alt="{{ $room['name'] }}"
+                            class="h-full w-full object-cover"
+                        />
                         <div class="absolute left-4 top-4 rounded-full bg-white/90 border border-slate-200 px-3 py-1 text-xs text-slate-700">
                             {{ $room['tag'] }}
                         </div>

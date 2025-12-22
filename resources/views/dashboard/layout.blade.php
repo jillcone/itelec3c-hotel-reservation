@@ -4,6 +4,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <aside class="lg:col-span-3">
                     <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                        <a href="{{ url('/') }}" class="flex items-center gap-3 mb-4">
+                            <div class="h-10 w-10 rounded-2xl overflow-hidden grid place-items-center">
+                                <img src="{{ asset('images/gallery/aurum-logo-only.svg') }}" alt="Aurum logo" class="h-full w-full object-cover" />
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-900">Aurum Hotel</div>
+                                <div class="text-[11px] text-slate-500 -mt-0.5">World-class stays</div>
+                            </div>
+                        </a>
+
                         <div class="text-xs text-slate-500">Signed in as</div>
                         <div class="mt-1 font-semibold text-slate-900">{{ auth()->user()->username }}</div>
                         <div class="mt-0.5 text-xs text-slate-500">Role: {{ auth()->user()->role }}</div>

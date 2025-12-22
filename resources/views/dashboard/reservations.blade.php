@@ -25,6 +25,7 @@
                     <th class="px-4 py-3 text-left font-semibold">Room</th>
                     <th class="px-4 py-3 text-left font-semibold">Check-in</th>
                     <th class="px-4 py-3 text-left font-semibold">Check-out</th>
+                    <th class="px-4 py-3 text-left font-semibold">Amenities</th>
                     <th class="px-4 py-3 text-left font-semibold">Total</th>
                     <th class="px-4 py-3 text-left font-semibold">Status</th>
                     <th class="px-4 py-3 text-left font-semibold">Actions</th>
@@ -38,6 +39,13 @@
                         <td class="px-4 py-3 text-slate-700">{{ $reservation->room?->room_number ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ optional($reservation->check_in_date)->format('Y-m-d') }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ optional($reservation->check_out_date)->format('Y-m-d') }}</td>
+                        <td class="px-4 py-3 text-slate-700">
+                            @if ($reservation->amenities->isNotEmpty())
+                                {{ $reservation->amenities->pluck('amenity_name')->implode(', ') }}
+                            @else
+                                —
+                            @endif
+                        </td>
                         <td class="px-4 py-3 text-slate-700">₱{{ number_format((float) $reservation->total_price, 2) }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ $reservation->reservation_status }}</td>
                         <td class="px-4 py-3 text-slate-700">
@@ -71,7 +79,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-6 text-center text-slate-500">No reservations found.</td>
+                        <td colspan="9" class="px-4 py-6 text-center text-slate-500">No reservations found.</td>
                     </tr>
                 @endforelse
                 </tbody>

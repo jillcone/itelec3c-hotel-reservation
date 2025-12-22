@@ -55,5 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Customer')->group(function () {
         Route::get('/dashboard/my-reservations', [DashboardController::class, 'myReservations'])->name('dashboard.my-reservations');
         Route::get('/dashboard/reserve', [DashboardController::class, 'reserve'])->name('dashboard.reserve');
+
+        Route::post('/dashboard/reserve', [DashboardController::class, 'reserveStore'])->name('dashboard.reserve.store');
     });
 });
