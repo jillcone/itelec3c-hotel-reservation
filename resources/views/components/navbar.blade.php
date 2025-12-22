@@ -31,13 +31,7 @@
                     Book Now
                 </a>
                 @auth
-                    <span class="btn btn-secondary">{{ auth()->user()->username }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="btn btn-secondary">
-                            Logout
-                        </button>
-                    </form>
+                    <a href="{{ route('dashboard') }}" class="btn btn-secondary">{{ auth()->user()->username }}</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-secondary">
                         Login
