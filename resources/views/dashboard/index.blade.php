@@ -35,13 +35,6 @@
         </div>
 
         <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 xl:col-span-2">
-                <div class="flex items-center justify-between">
-                    <div class="font-semibold">Revenue</div>
-                    <div class="text-xs text-slate-500">Placeholder</div>
-                </div>
-                <div class="mt-4 h-40 rounded-2xl bg-slate-50 border border-slate-200"></div>
-            </div>
             <div class="rounded-2xl border border-slate-200 bg-white p-5">
                 <div class="flex items-center justify-between">
                     <div class="font-semibold">Room Availability</div>

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
@@ -490,6 +491,7 @@ class DashboardController extends Controller
             'check_out_date' => ['required', 'date', 'after:check_in_date'],
             'amenity_ids' => ['nullable', 'array'],
             'amenity_ids.*' => ['integer', 'exists:amenities,amenity_id'],
+            'payment_receipt' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
         ]);
 
         $room = Room::query()->where('room_id', $validated['room_id'])->firstOrFail();
@@ -521,6 +523,11 @@ class DashboardController extends Controller
         $amenitiesTotal = (float) $amenities->sum(fn ($a) => (float) $a->price_per_use);
         $totalPrice = $baseTotal + $amenitiesTotal;
 
+        $receiptPath = null;
+        if ($request->hasFile('payment_receipt')) {
+            $receiptPath = Storage::disk('local')->putFile('private/payment-receipts', $request->file('payment_receipt'));
+        }
+
         $reservation = Reservation::create([
             'user_id' => $user->user_id,
             'room_id' => $room->room_id,
@@ -528,6 +535,7 @@ class DashboardController extends Controller
             'check_out_date' => $validated['check_out_date'],
             'total_price' => $totalPrice,
             'reservation_status' => 'pending',
+            'payment_receipt_path' => $receiptPath,
         ]);
 
         if ($amenities->isNotEmpty()) {
@@ -549,5 +557,34 @@ class DashboardController extends Controller
         }
 
         return redirect()->route('dashboard.reservations')->with('success', 'Reservation created and is pending approval.');
+    }
+
+    public function reservationReceipt(Request $request, int $reservationId)
+    {
+        $user = $request->user();
+
+        $reservation = Reservation::query()
+            ->with('user')
+            ->where('reservation_id', $reservationId)
+            ->firstOrFail();
+
+        if (($user->role ?? null) === 'Customer' && $reservation->user_id !== $user->user_id) {
+            abort(403);
+        }
+
+        $path = $reservation->payment_receipt_path;
+        if (!$path) {
+            abort(404);
+        }
+
+        if (Storage::disk('local')->exists($path)) {
+            return response()->file(Storage::disk('local')->path($path));
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return response()->file(Storage::disk('public')->path($path));
+        }
+
+        abort(404);
     }
 }

@@ -43,7 +43,24 @@ class RegisterController extends Controller
             'full_name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                // At least one uppercase letter
+                'regex:/[A-Z]/',
+                // At least one lowercase letter
+                'regex:/[a-z]/',
+                // At least one digit
+                'regex:/\d/',
+                // At least one special character
+                'regex:/[^A-Za-z0-9]/',
+            ],
+        ], [
+            'password.min' => 'The password must be at least :min characters.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
     }
 
@@ -58,7 +75,7 @@ class RegisterController extends Controller
         return User::create([
             'full_name' => $data['full_name'],
             'username' => $data['username'],
-            'role' => 'guest',
+            'role' => 'Customer',
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
@@ -69,5 +86,8 @@ class RegisterController extends Controller
         if ($user) {
             UserLog::record($user->user_id, 'Registered an account');
         }
+
+        return redirect($this->redirectPath())
+            ->with('success', 'Account created successfully. You are now logged in.');
     }
 }

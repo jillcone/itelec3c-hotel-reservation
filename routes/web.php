@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Admin,Employee,Customer')->group(function () {
         Route::get('/dashboard/reserve', [DashboardController::class, 'reserve'])->name('dashboard.reserve');
         Route::post('/dashboard/reserve', [DashboardController::class, 'reserveStore'])->name('dashboard.reserve.store');
+
+        Route::get('/dashboard/reservations/{reservationId}/receipt', [DashboardController::class, 'reservationReceipt'])
+            ->name('dashboard.reservations.receipt');
     });
 
     Route::middleware('role:Customer')->group(function () {

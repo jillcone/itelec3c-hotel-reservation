@@ -20,6 +20,7 @@ class Reservation extends Model
         'check_out_date',
         'total_price',
         'reservation_status',
+        'payment_receipt_path',
     ];
 
     protected function casts(): array
