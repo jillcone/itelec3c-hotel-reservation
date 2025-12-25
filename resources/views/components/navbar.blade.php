@@ -33,7 +33,7 @@
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-secondary">{{ auth()->user()->username }}</a>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-secondary">
+                    <a href="{{ route('login') }}" class="btn btn-secondary text-white">
                         Login
                     </a>
                 @endauth

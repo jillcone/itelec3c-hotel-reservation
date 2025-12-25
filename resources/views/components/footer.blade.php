@@ -62,6 +62,24 @@
             </div>
         </div>
 
+        {{-- Second Row - Rate Us --}}
+        <div class="mt-12 pt-12 border-t border-white/10">
+            <div class="max-w-md mx-auto text-center">
+                <p class="text-lg font-semibold text-white">Enjoyed your Stay?</p>
+                <p class="mt-2 text-sm text-white/60">Rate our Service</p>
+                <div class="mt-4 text-yellow text-2xl">
+                    ★★★★★
+                </div>
+                <button
+                    type="button"
+                    onclick="openRatingModal()"
+                    class="mt-6 rounded-xl bg-white text-slate-950 px-8 py-3 text-base font-semibold hover:bg-slate-100 transition shadow-lg"
+                >
+                    Rate Us!
+                </button>
+            </div>
+        </div>
+
         {{-- Bottom --}}
         <div class="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
             <p>

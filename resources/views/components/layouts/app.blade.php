@@ -10,6 +10,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/gallery/aurum-logo-only.svg') }}" />
     <link rel="icon" href="{{ asset('images/gallery/aurum-logo-only.svg') }}" />
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 </head>
 <body class="bg-white text-slate-900 antialiased">
     <div class="min-h-screen flex flex-col">
@@ -21,6 +24,9 @@
 
         <x-footer />
     </div>
+
+    {{-- Rating Modal --}}
+    <x-rating-modal />
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {

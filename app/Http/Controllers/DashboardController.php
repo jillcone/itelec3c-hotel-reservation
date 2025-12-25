@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Amenity;
 use App\Models\Reservation;
+use App\Models\Review;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\UserLog;
@@ -586,5 +587,56 @@ class DashboardController extends Controller
         }
 
         abort(404);
+    }
+
+    public function reviews()
+    {
+        $reviews = Review::query()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('dashboard.reviews', compact('reviews'));
+    }
+
+    public function reviewsApprove(Request $request, $reviewId)
+    {
+        $review = Review::findOrFail($reviewId);
+        $review->update(['is_approved' => true]);
+
+        return redirect()->route('dashboard.reviews')->with('success', 'Review approved.');
+    }
+
+    public function reviewsReject(Request $request, $reviewId)
+    {
+        $review = Review::findOrFail($reviewId);
+        $review->delete();
+
+        return redirect()->route('dashboard.reviews')->with('success', 'Review rejected and deleted.');
+    }
+
+    public function reviewsGetFeatured()
+    {
+        $reviews = Review::query()
+            ->where('is_approved', true)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'name', 'rating', 'comment', 'is_featured']);
+
+        return response()->json($reviews);
+    }
+
+    public function reviewsUpdateFeatured(Request $request)
+    {
+        $validated = $request->validate([
+            'featured_ids' => 'required|array|max:6',
+            'featured_ids.*' => 'integer|exists:reviews,id',
+        ]);
+
+        // Set all approved reviews to not featured
+        Review::where('is_approved', true)->update(['is_featured' => false]);
+
+        // Set selected reviews to featured
+        Review::whereIn('id', $validated['featured_ids'])->update(['is_featured' => true]);
+
+        return response()->json(['success' => true, 'message' => 'Featured reviews updated successfully.']);
     }
 }

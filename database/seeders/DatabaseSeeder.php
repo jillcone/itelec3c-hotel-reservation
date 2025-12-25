@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             RoleUsersSeeder::class,
             RoomsSeeder::class,
             AmenitiesSeeder::class,
+            ReviewsSeeder::class,
         ]);
     }
 }

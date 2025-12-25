@@ -8,9 +8,6 @@
         {{-- subtle grid --}}
         <div class="absolute inset-0 luxury-grid opacity-40"></div>
 
-        {{-- hero gradient --}}
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/90 to-white"></div>
-
         <div class="relative container-xl pt-16 pb-10 sm:pt-20 sm:pb-14">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                 <div class="lg:col-span-7">
@@ -237,9 +234,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- transition to white --}}
-        <div class="relative h-16 bg-gradient-to-b from-white/0 to-white"></div>
     </section>
 
     {{-- TRUST STRIP --}}
@@ -599,17 +593,21 @@
             <p class="text-slate-600 mt-2 max-w-2xl">Consistently praised for cleanliness, comfort, and service.</p>
 
             <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                @foreach ([
-                    ['n'=>'Maria S.','m'=>'Check-in was smooth, rooms were spotless, and the vibe feels premium without being loud.'],
-                    ['n'=>'Ken D.','m'=>'The minimalist interiors are beautiful. Fast Wi-Fi, great lighting, and super quiet at night.'],
-                    ['n'=>'Anne P.','m'=>'Suite was stunning. Service was quick and thoughtful. Would book again immediately.'],
-                ] as $r)
+                @foreach (\App\Models\Review::approved()->featured()->latest()->take(6)->get() as $review)
                     <div class="card card-hover p-6">
                         <div class="flex items-center justify-between">
-                            <div class="font-semibold">{{ $r['n'] }}</div>
-                            <div class="text-xs text-slate-500">★★★★★</div>
+                            <div class="font-semibold">{{ $review->name }}</div>
+                            <div class="text-xs text-slate-500">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= $review->rating)
+                                        ★
+                                    @else
+                                        ☆
+                                    @endif
+                                @endfor
+                            </div>
                         </div>
-                        <p class="text-sm text-slate-700 mt-3 leading-relaxed">{{ $r['m'] }}</p>
+                        <p class="text-sm text-slate-700 mt-3 leading-relaxed">{{ $review->comment }}</p>
                     </div>
                 @endforeach
             </div>

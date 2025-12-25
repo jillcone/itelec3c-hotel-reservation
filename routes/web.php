@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReviewController;
 
 Auth::routes();
 
@@ -17,6 +18,9 @@ Route::get('/about', function () {
 
 Route::view('/privacy-policy', 'pages.privacy')->name('privacy');
 Route::view('/terms', 'pages.terms')->name('terms');
+
+// Public review submission
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -50,6 +54,12 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/dashboard/approvals/{reservationId}/approve', [DashboardController::class, 'approvalsApprove'])->name('dashboard.approvals.approve');
         Route::post('/dashboard/approvals/{reservationId}/reject', [DashboardController::class, 'approvalsReject'])->name('dashboard.approvals.reject');
+
+        Route::get('/dashboard/reviews', [DashboardController::class, 'reviews'])->name('dashboard.reviews');
+        Route::post('/dashboard/reviews/{reviewId}/approve', [DashboardController::class, 'reviewsApprove'])->name('dashboard.reviews.approve');
+        Route::post('/dashboard/reviews/{reviewId}/reject', [DashboardController::class, 'reviewsReject'])->name('dashboard.reviews.reject');
+        Route::get('/dashboard/reviews/featured', [DashboardController::class, 'reviewsGetFeatured'])->name('dashboard.reviews.featured');
+        Route::post('/dashboard/reviews/featured', [DashboardController::class, 'reviewsUpdateFeatured'])->name('dashboard.reviews.featured.update');
     });
 
     Route::middleware('role:Admin,Employee,Customer')->group(function () {

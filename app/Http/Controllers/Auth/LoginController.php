@@ -38,6 +38,23 @@ class LoginController extends Controller
         return 'username';
     }
 
+    /**
+     * Get the post login redirect path.
+     *
+     * @return string
+     */
+    protected function redirectTo()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+            if (in_array($user->role, ['Admin', 'Employee'])) {
+                return '/dashboard';
+            }
+        }
+
+        return '/';
+    }
+
     protected function authenticated(Request $request, $user)
     {
         if ($user) {
