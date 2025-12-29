@@ -90,7 +90,7 @@
 >
     <div
         class="card card-hover w-full max-w-3xl max-h-[90vh] flex flex-col
-               bg-gray-500 rounded-2xl shadow-2xl p-6"
+               bg-white-500 rounded-2xl shadow-2xl p-6"
     >
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-200">
